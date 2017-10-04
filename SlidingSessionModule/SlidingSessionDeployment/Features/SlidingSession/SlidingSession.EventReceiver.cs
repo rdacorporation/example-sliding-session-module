@@ -18,31 +18,26 @@ namespace SlidingSessionDeployment.Features.SlidingSession
     {
         public override void FeatureActivated(SPFeatureReceiverProperties properties)
         {
-            var currentWebApplication = SPContext.Current.Site.WebApplication;
-
-            SPWebConfigModification httpModule = new SPWebConfigModification
+            if (properties.Feature.Parent is SPWebApplication webApp)
             {
-                Owner = "RDA.SlidingSessionModule",
-                Name = "add[@name='SlidingSessionHttpModule']",
-                Type = SPWebConfigModification.SPWebConfigModificationType.EnsureChildNode,
-                Path = "configuration/system.webServer/modules",
-                Sequence = 0,
-                Value = @"<add name=""SlidingSessionHttpModule"" type=""RDA.SlidingSessionModule.SlidingSessionModule, RDA.SlidingSessionModule, Version=1.0.0.0, Culture=neutral, PublicKeyToken=b61de93f440f208f"" />"
-            };
+                SPWebConfigModification httpModuleMod = new SPWebConfigModification
+                {
+                    Owner = "RDA.SlidingSessionModule",
+                    Name = "add[@name='SlidingSessionHttpModule']",
+                    Type = SPWebConfigModification.SPWebConfigModificationType.EnsureChildNode,
+                    Path = "configuration/system.webServer/modules",
+                    Sequence = 0,
+                    Value = @"<add name=""SlidingSessionHttpModule"" type=""RDA.SlidingSessionModule.SlidingSessionModule, RDA.SlidingSessionModule, Version=1.0.0.0, Culture=neutral, PublicKeyToken=b61de93f440f208f"" />"
+                };
 
-            currentWebApplication.WebConfigModifications.Add(httpModule);
-            currentWebApplication.Update();
-            currentWebApplication.WebService.ApplyWebConfigModifications();
+                webApp.WebConfigModifications.Add(httpModuleMod);
+                webApp.Update();
+                webApp.WebService.ApplyWebConfigModifications();
+            }
         }
 
         public override void FeatureDeactivating(SPFeatureReceiverProperties properties)
         {
-            using (SPSite site = SPContext.Current.Site)
-            {
-                site.WebApplication.FileNotFoundPage = "";
-                site.WebApplication.Update(true);
-            }
-
             if (properties.Feature.Parent is SPWebApplication webApp)
             {
                 var mods = new List<SPWebConfigModification>();
