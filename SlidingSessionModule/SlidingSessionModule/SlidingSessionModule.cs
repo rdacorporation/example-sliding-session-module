@@ -11,7 +11,7 @@ namespace RDA.SlidingSessionModule
         {
             // Sliding session
             FederatedAuthentication.SessionAuthenticationModule.SessionSecurityTokenReceived += SessionAuthenticationModule_SessionSecurityTokenReceived;
-            context.EndRequest += new EventHandler(OnEndRequest);
+            context.EndRequest += OnEndRequest;
         }
 
         public void Dispose()
